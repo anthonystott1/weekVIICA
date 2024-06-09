@@ -9,15 +9,22 @@ import projects.exception.DbException;
 import projects.service.ProjectService;
 
 /**
+ // Week 10 modification
+ */
+
+/**
  * 
  */
 public class ProjectsApp {
 	private Scanner scanner = new Scanner(System.in);
 	private ProjectService projectService = new ProjectService();
+	private Project curProject;
 		
     // @formatter:off
     private List<String> operations = List.of(
-            "1) Add a project"
+            "1) Add a project",
+    		"2) List projects",
+    		"3) Select a project"
     );
     // @formatter:on
 
@@ -39,13 +46,21 @@ private void processUserSelections() {
     		int selection = getUserSelection();
                 
             switch (selection) {
+            	case -1:
+            		done = exitMenu();
+            		break;
+            		
             	case 1:
                     createProject();
                     break;
-
-                case -1:
-                	done = exitMenu();
-                    break;
+                    
+            	case 2:  // Week 10 modification
+                    listProjects();
+                    break; 
+            	case 3: 
+            		
+            		selectProject();
+            		break;                
 
                 default:
                     System.out.println("\n" + selection + " is not a valid selection. Try again.");
@@ -148,7 +163,40 @@ private String getStringInput(String prompt) {
   */
 private void printOperations() {
 	System.out.println("\nThese are the available selections. Press the Enter key to quit:");
-    operations.forEach(line -> System.out.println("  " + line));
+    /* With lambda espression */
+	operations.forEach(line -> System.out.println("  " + line));
+	/* with enhanced for loop*/
+	// for(String line : operations) {
+	//}
+	if(Objects.isNull(curProject)) {
+		System.out.println("\nYou are not working with a project.");
 	}
+	else {
+		System.out.println("\nYou are working with project: " + curProject);
+	}
+}
+
+/**
+ * Week 10 modification
+ */
+private void listProjects() {
+    List<Project> projects = projectService.fetchAllProjects();
+    System.out.println("\nProjects:");
+    for (Project project : projects) {
+        System.out.println("  " + project.getProjectId() + ": " + project.getProjectName());
+    	}
+	}
+
+private void selectProject() {
+	listProjects();
+	Integer projectID = getIntInput("Enter a project ID to select a project.");
+	
+	/* unselect the current project. */ 
+	curProject = null;
+			
+	/* This will throw an exception if an invalid project ID is entered. */
+	curProject = projectService.fetchProjectById(projectID);
+	}
+
 }
 
